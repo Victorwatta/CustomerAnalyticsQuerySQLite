@@ -1,79 +1,140 @@
-
--- *** In January how many orders were placed  ***
+--1. How manty order ID in January
 SELECT COUNT(orderID) 
   FROM JanSales
  WHERE length(orderID) = 6;
-
---** How nmany iPhone orders were placed in Januaury ***
+ 
+-- 2. How many iPhone orders were placed in Januaury ***
 SELECT COUNT(orderID) 
   FROM JanSales
- WHERE length(orderID) = 6 AND (Product) = 'iPhone';
- 
---** List the location where these iPhones were ordered from ***
+ WHERE length(orderID) = 6 AND 
+       (Product) = 'iPhone';
+       
+-- 3. List the location where these iPhones were ordered from ***
 SELECT (location) 
   FROM JanSales
- WHERE length(orderID) = 6 AND (Product) = 'iPhone';
+ WHERE length(orderID) = 6 AND 
+       (Product) = 'iPhone';
  
---*** List the customer account number for the February orders**
+      
+-- 4. List the customer account number for the February orders**
 SELECT DISTINCT acctnum
   FROM FebSales
-  LEFT JOIN customers ON FebSales.orderID = customers.order_id
- WHERE length(orderID) = 6 ;
+       LEFT JOIN
+       customers ON FebSales.orderID = customers.order_id
+ WHERE length(orderID) = 6;
+
  
---*** Waht was the price for the cheapest product sold in January ***
+-- 5. What was the price for the cheapest product sold in January ***
 SELECT price
   FROM JanSales
-  ORDER BY price ASC LIMIT 1;
+ ORDER BY price ASC
+ LIMIT 1;
+ 
+
+-- 6. What was the total revenue for each product type sold in January ***
+SELECT Product,
+       SUM(Quantity),
+       price,
+       ROUND(SUM(Quantity) * price, 2) AS Total_Revenue
+  FROM JanSales
+ GROUP BY Product;
+ 
+
+-- 7.List of products sold at 548Lincoln St Seattle WA 98101 in February and the total revenue ***
+SELECT Product,
+       Quantity,
+       price,
+       ROUND(SUM(Quantity) * price, 2) AS Revenue
+  FROM FebSales
+ WHERE location = '548 Lincoln St, Seattle, WA 98101'
+ GROUP BY product;
+ 
+
+-- 8. List the account number for the customer who has ordered more than 2 products at a time in Feb, what the product was and the average spent ***
+SELECT DISTINCT product,
+                customers.acctnum,
+                ROUND(avg(Quantity * price), 2) AS Average_value
+  FROM acctnum
+       LEFT JOIN
+       FebSales ON FebSales.orderID = customers.order_id
+ WHERE Quantity > 2
+ ORDER BY Product;
+ 
+
+-- -9.1. List the order dates between 02/13/19 and 02/18/19
+SELECT orderdate
+  FROM FebSales
+ WHERE orderdate BETWEEN '02/13/19 00:00' AND [02/18/19 00:00];-- -***2. What is the location for the order that was place on this date 02/16/19 20:54
+
+SELECT location,
+       Product
+  FROM FebSales
+ WHERE orderdate = '02/16/19 20:54'
+ ORDER BY location;
+ 
+
+-- 10. All orders places on 02/18/19
+SELECT SUM(quantity) 
+  FROM FebSales
+ WHERE orderdate LIKE '02/18/19%';
+ 
+
+--_11. List any product and price, that has a nane Batteries
+SELECT DISTINCT Product,
+                price
+  FROM FebSales
+ WHERE Product LIKE '%Batteries%';
+ 
+
+-- 12. For the sales done in March what are the products with a .99 price tage and what are their prices
+SELECT DISTINCT Product,
+                price
+  FROM MarSales
+ WHERE price LIKE '%.99'
+ ORDER BY price;
+ 
+
+-- 13. List all the products sold in Los Angles in February, include the price for each product
+SELECT DISTINCT Product,
+                location,
+                price
+  FROM FebSales
+ WHERE location LIKE '%Los Angeles%'
+ ORDER BY Product;
+ 
+--14. Which location in New York received at least 2 orders in January and how many orders did each get 
+SELECT location,COUNT(DISTINCT orderID) AS order_count, GROUP_CONCAT(DISTINCT product) as products
+  FROM JanSales
+  WHERE location LIKE '%New York%' 
+  GROUP BY location
+  HAVING COUNT(DISTINCT orderID) >= 2
+  ORDER BY location ASC;
   
---** What was the total revenue for each product type sold in January ***
-SELECT Product,SUM (Quantity),price, ROUND ( SUM (Quantity)*price,2) AS Total_Revenue
-FROM JanSales
+--15. how many of each type of headphones were sold in March 
+SELECT Product, sum(Quantity) AS quantity
+FROM MarSales
+WHERE Product LIKE '%headphones%'
 GROUP BY Product;
 
---***List of products sold at 548Lincoln St Seattle WA 98101 in February and the total revenue ***
-SELECT Product, Quantity, price, ROUND ( SUM (Quantity)*price,2) AS Revenue
-FROM FebSales
-WHERE location = '548 Lincoln St, Seattle, WA 98101'
-GROUP BY product;
+--16. What is the average spent for March per account 
+SELECT  DISTINCT COUNT(cust.acctnum)AS customer_count, ROUND ( SUM(mar.Quantity*mar.price),2) AS sum_spent,
+         ROUND ( SUM(mar.Quantity*mar.price) /  COUNT (DISTINCT cust.acctnum),2) AS average_spent
+    FROM MarSales mar
+    LEFT JOIN customers cust 
+    ON  mar.orderID =  cust.order_id;
 
---*** List the account number for the customer who has ordered more than 2 products at a time in Feb, what the product was and the average spent ***
-SELECT DISTINCT product,customers.acctnum, ROUND ( avg(Quantity*price), 2) AS Average_value
-FROM customers
-LEFT JOIN FebSales 
-ON FebSales.orderID = customers.order_id
-WHERE Quantity > 2
-ORDER BY Product;
-
----***1. List the order dates between 02/13/19 and 02/18/19 
-SELECT orderdate
-FROM FebSales 
-WHERE orderdate between '02/13/19 00:00' AND '02/18/19 00:00';
-
----***2. What is the location for the order that was place on this date 02/16/19 20:54
-SELECT location, Product
-FROM FebSales
-WHERE orderdate = '02/16/19 20:54'
-ORDER BY location;
-
----***3. 
-SELECT SUM (quantity)
-FROM FebSales
-WHERE orderdate like '02/18/19%';
-
----##1. List any product and price, that has a nane Batteries 
-SELECT DISTINCT Product, price
-FROM FebSales 
-WHERE Product like '%Batteries%';
-
-
---##2. For the sales done in March what are the products with a .99 price tage and what are thier prices
-SELECT DISTINCT Product , price
-FROM MarSales 
-WHERE price LIKE '%.99'
-ORDER BY price;
-
---3. List all the products sold in Los Angles in February, include the price for each product 
-SELECT DISTINCT Product, location, price 
-FROM FebSales
-WHERE location LIKE '%Los Angeles%'
-ORDER BY Product;
+--17.What is the average quantity of products purchased per account in February 
+SELECT SUM (Quantity) AS total_quantity, COUNT(DISTINCT acctnum) AS account_count,
+     SUM (Quantity) / COUNT(DISTINCT acctnum) AS average_quantity_peraccount
+    FROM FebSales feb
+    LEFT JOIN customers cust
+    ON feb.orderID = cust.order_id
+    WHERE length(orderid) = 6 
+    AND orderid <> 'Order ID';
+    
+--18. Which 3 prodcutS brought in the most revenue in January and how much was this 
+SELECT Product, ROUND (SUM(Quantity*price),2)AS revenue
+    FROM JanSales
+    GROUP BY Product 
+    ORDER BY revenue DESC
+    LIMIT 3;

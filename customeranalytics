@@ -1,0 +1,46 @@
+
+-- *** In January how many orders were placed  ***
+SELECT COUNT(orderID) 
+  FROM JanSales
+ WHERE length(orderID) = 6;
+
+--** How nmany iPhone orders were placed in Januaury ***
+SELECT COUNT(orderID) 
+  FROM JanSales
+ WHERE length(orderID) = 6 AND (Product) = 'iPhone';
+ 
+--** List the location where these iPhones were ordered from ***
+SELECT (location) 
+  FROM JanSales
+ WHERE length(orderID) = 6 AND (Product) = 'iPhone';
+ 
+--*** List the customer account number for the February orders**
+SELECT DISTINCT acctnum
+  FROM FebSales
+  LEFT JOIN customers ON FebSales.orderID = customers.order_id
+ WHERE length(orderID) = 6 ;
+ 
+--*** Waht was the price for the cheapest product sold in January ***
+SELECT price
+  FROM JanSales
+  ORDER BY price ASC LIMIT 1;
+  
+--** What was the total revenue for each product type sold in January ***
+SELECT Product,SUM (Quantity),price, ROUND ( SUM (Quantity)*price,2) AS Total_Revenue
+FROM JanSales
+GROUP BY Product;
+
+--***List of products sold at 548Lincoln St Seattle WA 98101 in February and the total revenue ***
+SELECT Product, Quantity, price, ROUND ( SUM (Quantity)*price,2) AS Revenue
+FROM FebSales
+WHERE location = '548 Lincoln St, Seattle, WA 98101'
+GROUP BY product;
+
+--*** List the account number for the customer who has ordered more than 2 products at a time in Feb, what the product was and the average spent ***
+SELECT DISTINCT product,customers.acctnum, ROUND ( avg(Quantity*price), 2) AS Average_value
+FROM customers
+LEFT JOIN FebSales 
+ON FebSales.orderID = customers.order_id
+WHERE Quantity > 2
+ORDER BY Product;
+

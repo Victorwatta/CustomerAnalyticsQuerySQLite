@@ -44,3 +44,36 @@ ON FebSales.orderID = customers.order_id
 WHERE Quantity > 2
 ORDER BY Product;
 
+---***1. List the order dates between 02/13/19 and 02/18/19 
+SELECT orderdate
+FROM FebSales 
+WHERE orderdate between '02/13/19 00:00' AND '02/18/19 00:00';
+
+---***2. What is the location for the order that was place on this date 02/16/19 20:54
+SELECT location, Product
+FROM FebSales
+WHERE orderdate = '02/16/19 20:54'
+ORDER BY location;
+
+---***3. 
+SELECT SUM (quantity)
+FROM FebSales
+WHERE orderdate like '02/18/19%';
+
+---##1. List any product and price, that has a nane Batteries 
+SELECT DISTINCT Product, price
+FROM FebSales 
+WHERE Product like '%Batteries%';
+
+
+--##2. For the sales done in March what are the products with a .99 price tage and what are thier prices
+SELECT DISTINCT Product , price
+FROM MarSales 
+WHERE price LIKE '%.99'
+ORDER BY price;
+
+--3. List all the products sold in Los Angles in February, include the price for each product 
+SELECT DISTINCT Product, location, price 
+FROM FebSales
+WHERE location LIKE '%Los Angeles%'
+ORDER BY Product;
